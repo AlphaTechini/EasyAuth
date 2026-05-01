@@ -1,0 +1,71 @@
+{
+  "name": "@easyauth/frontend",
+  "version": "0.0.0",
+  "description": "Browser-safe EasyAuth frontend SDK.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./svelte/provider": {
+      "svelte": "./src/components/EasyAuthProvider.svelte",
+      "default": "./src/components/EasyAuthProvider.svelte"
+    },
+    "./svelte/login-connect-modal": {
+      "svelte": "./src/components/LoginConnectModal.svelte",
+      "default": "./src/components/LoginConnectModal.svelte"
+    },
+    "./svelte/wallet-card": {
+      "svelte": "./src/components/WalletCard.svelte",
+      "default": "./src/components/WalletCard.svelte"
+    },
+    "./svelte/fund-wallet-card": {
+      "svelte": "./src/components/FundWalletCard.svelte",
+      "default": "./src/components/FundWalletCard.svelte"
+    },
+    "./svelte/funding-status-card": {
+      "svelte": "./src/components/FundingStatusCard.svelte",
+      "default": "./src/components/FundingStatusCard.svelte"
+    },
+    "./svelte/embedded-checkout": {
+      "svelte": "./src/components/EmbeddedCheckout.svelte",
+      "default": "./src/components/EmbeddedCheckout.svelte"
+    },
+    "./svelte/state": {
+      "svelte": "./src/components/EasyAuthState.svelte",
+      "default": "./src/components/EasyAuthState.svelte"
+    },
+    "./styles.css": {
+      "default": "./src/styles/easyauth.css"
+    }
+  },
+  "files": [
+    "dist",
+    "src/components",
+    "src/styles",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts src/theme.ts src/ui-context.ts src/ui-style.ts --format esm,cjs --clean --external @easyauth/shared --external svelte --external svelte/store",
+    "check:svelte": "node ../../scripts/check-svelte.mjs src/components",
+    "postbuild": "tsc --emitDeclarationOnly -p tsconfig.json --outDir dist",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@easyauth/shared": "workspace:*"
+  },
+  "peerDependencies": {
+    "svelte": "^5.55.5"
+  },
+  "devDependencies": {
+    "svelte": "5.55.5"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

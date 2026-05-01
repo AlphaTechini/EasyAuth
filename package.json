@@ -1,0 +1,17 @@
+{
+  "name": "easyauth-sdk",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.32.1",
+  "type": "module",
+  "scripts": {
+    "build": "pnpm -r run build",
+    "pretypecheck": "pnpm --filter @easyauth/shared build",
+    "typecheck": "pnpm -r run typecheck",
+    "verify": "node scripts/verify.mjs"
+  },
+  "devDependencies": {
+    "tsup": "8.5.1",
+    "typescript": "6.0.3"
+  }
+}

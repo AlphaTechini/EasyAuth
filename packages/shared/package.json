@@ -1,0 +1,28 @@
+{
+  "name": "@easyauth/shared",
+  "version": "0.0.0",
+  "description": "Shared EasyAuth SDK types and contracts.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --clean",
+    "postbuild": "tsc --emitDeclarationOnly -p tsconfig.json --outDir dist",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
