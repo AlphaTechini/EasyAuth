@@ -11,6 +11,36 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./adapters/better-auth": {
+      "types": "./dist/adapters/better-auth.d.ts",
+      "import": "./dist/adapters/better-auth.js",
+      "require": "./dist/adapters/better-auth.cjs"
+    },
+    "./adapters/crossmint": {
+      "types": "./dist/adapters/crossmint.d.ts",
+      "import": "./dist/adapters/crossmint.js",
+      "require": "./dist/adapters/crossmint.cjs"
+    },
+    "./integrations/fastify": {
+      "types": "./dist/integrations/fastify.d.ts",
+      "import": "./dist/integrations/fastify.js",
+      "require": "./dist/integrations/fastify.cjs"
+    },
+    "./handlers": {
+      "types": "./dist/handlers/index.d.ts",
+      "import": "./dist/handlers/index.js",
+      "require": "./dist/handlers/index.cjs"
+    },
+    "./storage/memory": {
+      "types": "./dist/storage/memory.d.ts",
+      "import": "./dist/storage/memory.js",
+      "require": "./dist/storage/memory.cjs"
+    },
+    "./storage/postgres": {
+      "types": "./dist/storage/postgres.d.ts",
+      "import": "./dist/storage/postgres.js",
+      "require": "./dist/storage/postgres.cjs"
     }
   },
   "files": [
@@ -18,14 +48,18 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format esm,cjs --clean --external @easyauth/shared",
+    "build": "tsup src/index.ts src/adapters/better-auth.ts src/adapters/crossmint.ts src/handlers/index.ts src/integrations/fastify.ts src/storage/memory.ts src/storage/postgres.ts --format esm,cjs --clean --external @easyauth/shared --external pg",
     "postbuild": "tsc --emitDeclarationOnly -p tsconfig.json --outDir dist",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
-    "@easyauth/shared": "workspace:*"
+    "@easyauth/shared": "workspace:*",
+    "pg": "8.20.0"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "devDependencies": {
+    "@types/pg": "8.20.0"
   }
 }

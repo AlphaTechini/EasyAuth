@@ -185,15 +185,22 @@ Sub-tasks:
   - `getFundingTransaction`
 - Expose framework-neutral handler functions that host frameworks can adapt into their own routing systems.
 - Provide Fastify helper functions as the main implemented backend path.
-- Keep database-backed storage as a later adapter.
+- Provide database-backed storage as an adapter, while keeping persistence replaceable.
 
 Implementation notes:
 
 - The server contract should make persistence replaceable.
-- The schema remains useful as a reference for durable storage, but it should not force the SDK to depend on a database.
+- The schema remains useful as a reference for durable storage, but core services should not depend on a database directly.
 - Webhook processing must be idempotent.
 - Funding status updates should be webhook-driven only.
 - The SDK should not implement polling as the primary funding-status mechanism.
+
+Current implementation status:
+
+- Route contracts are exposed through `@easyauth/backend/handlers`.
+- Fastify route registration consumes the shared route contract.
+- Memory and Postgres storage adapters implement the same `StorageAdapter` interface.
+- Crossmint webhook processing records webhook events idempotently through storage.
 
 ## Part Six: Framework Examples
 

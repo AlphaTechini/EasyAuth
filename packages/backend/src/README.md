@@ -19,6 +19,7 @@ To find backend service logic visit [services](file:///C:/Hackathons/EasyAuth/pa
 To find backend route handlers visit [handlers](file:///C:/Hackathons/EasyAuth/packages/backend/src/handlers/README.md).
 To find backend framework integrations visit [integrations](file:///C:/Hackathons/EasyAuth/packages/backend/src/integrations/README.md).
 To find backend storage implementations visit [storage](file:///C:/Hackathons/EasyAuth/packages/backend/src/storage/README.md).
+To find durable Postgres storage logic visit [storage/postgres-storage.ts](file:///C:/Hackathons/EasyAuth/packages/backend/src/storage/postgres-storage.ts).
 To find backend configuration logic visit [config.ts](file:///C:/Hackathons/EasyAuth/packages/backend/src/config.ts).
 To find backend error logic visit [errors.ts](file:///C:/Hackathons/EasyAuth/packages/backend/src/errors.ts).
 To find backend request validation logic visit [validation.ts](file:///C:/Hackathons/EasyAuth/packages/backend/src/validation.ts).

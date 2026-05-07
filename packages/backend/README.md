@@ -26,5 +26,19 @@ To find backend service logic visit [src/services](file:///C:/Hackathons/EasyAut
 To find backend route handlers visit [src/handlers](file:///C:/Hackathons/EasyAuth/packages/backend/src/handlers/README.md).
 To find backend Fastify integration logic visit [src/integrations](file:///C:/Hackathons/EasyAuth/packages/backend/src/integrations/README.md).
 To find backend storage implementations visit [src/storage](file:///C:/Hackathons/EasyAuth/packages/backend/src/storage/README.md).
+To find durable Postgres storage logic visit [src/storage/postgres-storage.ts](file:///C:/Hackathons/EasyAuth/packages/backend/src/storage/postgres-storage.ts).
+To find durable Postgres schema SQL visit [src/storage/postgres-schema.ts](file:///C:/Hackathons/EasyAuth/packages/backend/src/storage/postgres-schema.ts).
 The backend package configuration can be found in [package.json](file:///C:/Hackathons/EasyAuth/packages/backend/package.json).
 The backend TypeScript connection can be found in [tsconfig.json](file:///C:/Hackathons/EasyAuth/packages/backend/tsconfig.json).
+
+## Curated Exports
+
+- `@easyauth/backend`
+- `@easyauth/backend/adapters/better-auth`
+- `@easyauth/backend/adapters/crossmint`
+- `@easyauth/backend/handlers`
+- `@easyauth/backend/integrations/fastify`
+- `@easyauth/backend/storage/memory`
+- `@easyauth/backend/storage/postgres`
+
+To find curated backend export configuration visit [package.json](file:///C:/Hackathons/EasyAuth/packages/backend/package.json).

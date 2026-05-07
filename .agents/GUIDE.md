@@ -31,6 +31,8 @@
 - Backend services should stay framework-neutral and should not depend on Fastify, Crossmint, Better Auth, or a database package directly.
 - Fastify support should start as a structural route registration helper while route contracts stabilize.
 - In-memory storage is for local development, demos, and SDK contract validation only.
+- Durable SDK storage should use the raw `pg` Postgres adapter first, with Supabase supported through a pooler connection string and `sslmode=require`.
+- Database schema application should remain explicit; SDK storage adapters must not silently migrate production databases unless the host opts in.
 - Backend SDK hardening comes before provider-specific Better Auth and Crossmint adapters.
 - Backend services should validate runtime inputs because package consumers can call services directly without route handlers.
 - Signed webhook handling should require a raw request body by default so provider signature verification is not based on parsed JSON.
@@ -41,6 +43,9 @@
 - Embedded Crossmint checkout is the primary v1 funding UX; hosted checkout is a fallback path only.
 - EasyAuth frontend login should call Better Auth's social sign-in endpoint and redirect from the provider response instead of linking to a static login URL.
 - The Svelte embedded checkout component should own the EasyAuth shell and mount Crossmint's official UI at runtime through optional host-installed dependencies.
+- Fastify hosts should register `registerEasyAuthFastifyRawBody` before EasyAuth webhook routes so Crossmint verification receives the signed raw body.
+- Package export maps should expose curated subpaths for common integration surfaces without making every internal file part of the stable public API.
+- Server integration route contracts should live in `@easyauth/backend/handlers` and be reused by Fastify instead of duplicating route definitions per framework.
 - SDK packages should use `tsup` for TypeScript package builds.
 - Svelte is the first-class frontend SDK implementation target.
 - Fastify is the first-class backend SDK integration target.

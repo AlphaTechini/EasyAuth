@@ -12,6 +12,21 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "import": "./dist/client.js",
+      "require": "./dist/client.cjs"
+    },
+    "./api-client": {
+      "types": "./dist/api-client.d.ts",
+      "import": "./dist/api-client.js",
+      "require": "./dist/api-client.cjs"
+    },
+    "./theme": {
+      "types": "./dist/theme.d.ts",
+      "import": "./dist/theme.js",
+      "require": "./dist/theme.cjs"
+    },
     "./svelte/provider": {
       "svelte": "./src/components/EasyAuthProvider.svelte",
       "default": "./src/components/EasyAuthProvider.svelte"
@@ -51,7 +66,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsup src/index.ts src/theme.ts src/ui-context.ts src/ui-style.ts --format esm,cjs --clean --external @easyauth/shared --external svelte --external svelte/store",
+    "build": "tsup src/index.ts src/api-client.ts src/client.ts src/theme.ts src/ui-context.ts src/ui-style.ts --format esm,cjs --clean --external @easyauth/shared --external svelte --external svelte/store",
     "check:svelte": "node ../../scripts/check-svelte.mjs src/components",
     "postbuild": "tsc --emitDeclarationOnly -p tsconfig.json --outDir dist",
     "typecheck": "tsc --noEmit -p tsconfig.json"

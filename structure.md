@@ -16,6 +16,7 @@ C:/Hackathons/EasyAuth
 |   |   |   |   |-- crossmint-funding.ts
 |   |   |   |   |-- crossmint-http.ts
 |   |   |   |   |-- crossmint-wallet.ts
+|   |   |   |   |-- crossmint.ts
 |   |   |   |   |-- funding.ts
 |   |   |   |   |-- README.md
 |   |   |   |   |-- storage.ts
@@ -27,6 +28,7 @@ C:/Hackathons/EasyAuth
 |   |   |   |   |-- index.ts
 |   |   |   |   |-- README.md
 |   |   |   |   |-- response.ts
+|   |   |   |   |-- routes.ts
 |   |   |   |   |-- session-handler.ts
 |   |   |   |   |-- wallet-handler.ts
 |   |   |   |   `-- webhook-handler.ts
@@ -41,7 +43,11 @@ C:/Hackathons/EasyAuth
 |   |   |   |   |-- wallet-service.ts
 |   |   |   |   `-- webhook-service.ts
 |   |   |   |-- storage/
+|   |   |   |   |-- memory.ts
 |   |   |   |   |-- memory-storage.ts
+|   |   |   |   |-- postgres-schema.ts
+|   |   |   |   |-- postgres-storage.ts
+|   |   |   |   |-- postgres.ts
 |   |   |   |   `-- README.md
 |   |   |   |-- types.ts
 |   |   |   |-- validation.ts
@@ -121,8 +127,10 @@ C:/Hackathons/EasyAuth
 - Backend adapter contracts live in [packages/backend/src/adapters](file:///C:/Hackathons/EasyAuth/packages/backend/src/adapters/README.md).
 - Backend services live in [packages/backend/src/services](file:///C:/Hackathons/EasyAuth/packages/backend/src/services/README.md).
 - Backend route handlers live in [packages/backend/src/handlers](file:///C:/Hackathons/EasyAuth/packages/backend/src/handlers/README.md).
+- Framework-neutral backend route contracts live in [packages/backend/src/handlers/routes.ts](file:///C:/Hackathons/EasyAuth/packages/backend/src/handlers/routes.ts).
 - Backend Fastify integration lives in [packages/backend/src/integrations](file:///C:/Hackathons/EasyAuth/packages/backend/src/integrations/README.md).
 - Backend storage adapters live in [packages/backend/src/storage](file:///C:/Hackathons/EasyAuth/packages/backend/src/storage/README.md).
+- Durable Postgres storage logic lives in [packages/backend/src/storage/postgres-storage.ts](file:///C:/Hackathons/EasyAuth/packages/backend/src/storage/postgres-storage.ts).
 - Frontend API request logic lives in [packages/frontend/src/api-client.ts](file:///C:/Hackathons/EasyAuth/packages/frontend/src/api-client.ts).
 - Public frontend client logic lives in [packages/frontend/src/client.ts](file:///C:/Hackathons/EasyAuth/packages/frontend/src/client.ts).
 - Frontend public TypeScript types live in [packages/frontend/src/types.ts](file:///C:/Hackathons/EasyAuth/packages/frontend/src/types.ts).

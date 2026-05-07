@@ -1,16 +1,7 @@
-import { DEFAULT_EASYAUTH_ENDPOINTS, type FundingRequest } from "@easyauth/shared";
 import type { BetterAuthLike } from "../adapters/better-auth.js";
 import type { EasyAuthBackend } from "../config.js";
-import {
-  handleCreateFundingOrder,
-  handleCreateWallet,
-  handleGetFundingStatus,
-  handleGetWallet,
-  handleSession,
-  handleWebhook
-} from "../handlers/index.js";
+import { createEasyAuthRouteHandlers } from "../handlers/index.js";
 import type {
-  CreateWalletServiceInput,
   EasyAuthHandlerInput,
   EasyAuthHandlerResponse
 } from "../types.js";
@@ -18,6 +9,11 @@ import type {
 export interface FastifyLike {
   get(path: string, handler: FastifyRouteHandler): unknown;
   post(path: string, handler: FastifyRouteHandler): unknown;
+  addContentTypeParser?(
+    contentType: string,
+    options: FastifyContentTypeParserOptions,
+    parser: FastifyContentTypeParser
+  ): unknown;
   route?(options: {
     method: string | string[];
     url: string;
@@ -33,6 +29,10 @@ export interface FastifyRequestLike {
   params?: Record<string, string | undefined>;
   rawBody?: string | Uint8Array;
   raw?: unknown;
+}
+
+export interface FastifyRawBodyRequestLike extends FastifyRequestLike {
+  rawBody?: string | Uint8Array;
 }
 
 export interface FastifyReplyLike {
@@ -54,6 +54,23 @@ export interface RegisterBetterAuthFastifyRoutesOptions {
   prefix?: string;
 }
 
+export interface RegisterEasyAuthFastifyRawBodyOptions {
+  contentTypes?: string[];
+  parseAs?: "string" | "buffer";
+  bodyLimit?: number;
+}
+
+export interface FastifyContentTypeParserOptions {
+  parseAs: "string" | "buffer";
+  bodyLimit?: number;
+}
+
+export type FastifyContentTypeParser = (
+  request: FastifyRawBodyRequestLike,
+  body: string | Uint8Array,
+  done: (error: Error | null, body?: unknown) => void
+) => void;
+
 export function registerEasyAuthFastifyRoutes(
   app: FastifyLike,
   backend: EasyAuthBackend,
@@ -61,24 +78,39 @@ export function registerEasyAuthFastifyRoutes(
 ) {
   const prefix = normalizePrefix(options.prefix);
 
-  app.get(`${prefix}${DEFAULT_EASYAUTH_ENDPOINTS.session}`, (request, reply) =>
-    sendFastifyResponse(reply, handleSession(backend, toHandlerInput(request)))
-  );
-  app.get(`${prefix}${DEFAULT_EASYAUTH_ENDPOINTS.wallet}`, (request, reply) =>
-    sendFastifyResponse(reply, handleGetWallet(backend, toHandlerInput(request)))
-  );
-  app.post(`${prefix}${DEFAULT_EASYAUTH_ENDPOINTS.createWallet}`, (request, reply) =>
-    sendFastifyResponse(reply, handleCreateWallet(backend, toHandlerInput<CreateWalletServiceInput>(request)))
-  );
-  app.post(`${prefix}${DEFAULT_EASYAUTH_ENDPOINTS.fundingOrders}`, (request, reply) =>
-    sendFastifyResponse(reply, handleCreateFundingOrder(backend, toHandlerInput<FundingRequest>(request)))
-  );
-  app.get(`${prefix}${DEFAULT_EASYAUTH_ENDPOINTS.fundingStatus}`, (request, reply) =>
-    sendFastifyResponse(reply, handleGetFundingStatus(backend, toHandlerInput(request)))
-  );
-  app.post(`${prefix}/webhooks/crossmint`, (request, reply) =>
-    sendFastifyResponse(reply, handleWebhook(backend, toHandlerInput(request)))
-  );
+  for (const route of createEasyAuthRouteHandlers(backend)) {
+    const path = `${prefix}${route.path}`;
+    const handler: FastifyRouteHandler = (request, reply) =>
+      sendFastifyResponse(reply, route.handle(toHandlerInput(request)));
+
+    if (route.method === "GET") {
+      app.get(path, handler);
+    } else {
+      app.post(path, handler);
+    }
+  }
+}
+
+export function registerEasyAuthFastifyRawBody(
+  app: Pick<FastifyLike, "addContentTypeParser">,
+  options: RegisterEasyAuthFastifyRawBodyOptions = {}
+) {
+  if (!app.addContentTypeParser) {
+    throw new Error("Fastify raw body setup requires addContentTypeParser.");
+  }
+
+  const contentTypes = options.contentTypes ?? ["application/json"];
+
+  for (const contentType of contentTypes) {
+    app.addContentTypeParser(
+      contentType,
+      {
+        parseAs: options.parseAs ?? "string",
+        bodyLimit: options.bodyLimit
+      },
+      parseRawJsonBody
+    );
+  }
 }
 
 export function registerBetterAuthFastifyRoutes(
@@ -116,6 +148,21 @@ function toHandlerInput<TBody = unknown>(request: FastifyRequestLike): EasyAuthH
     rawBody: request.rawBody,
     rawRequest: request.raw
   };
+}
+
+function parseRawJsonBody(
+  request: FastifyRawBodyRequestLike,
+  body: string | Uint8Array,
+  done: (error: Error | null, body?: unknown) => void
+) {
+  request.rawBody = body;
+
+  try {
+    const rawText = typeof body === "string" ? body : new TextDecoder().decode(body);
+    done(null, rawText.length > 0 ? JSON.parse(rawText) : null);
+  } catch (error) {
+    done(error instanceof Error ? error : new Error("Invalid JSON request body."));
+  }
 }
 
 function toWebRequest(request: FastifyRequestLike) {

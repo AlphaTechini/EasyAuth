@@ -20,3 +20,12 @@ To find shared SDK models visit [src/models.ts](file:///C:/Hackathons/EasyAuth/p
 To find shared route contracts visit [src/routes.ts](file:///C:/Hackathons/EasyAuth/packages/shared/src/routes.ts).
 The shared package configuration can be found in [package.json](file:///C:/Hackathons/EasyAuth/packages/shared/package.json).
 The shared TypeScript connection can be found in [tsconfig.json](file:///C:/Hackathons/EasyAuth/packages/shared/tsconfig.json).
+
+## Curated Exports
+
+- `@easyauth/shared`
+- `@easyauth/shared/models`
+- `@easyauth/shared/routes`
+- `@easyauth/shared/errors`
+
+To find shared export configuration visit [package.json](file:///C:/Hackathons/EasyAuth/packages/shared/package.json).

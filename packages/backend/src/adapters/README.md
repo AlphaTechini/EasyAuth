@@ -15,6 +15,7 @@ Tradeoff:
 
 To find auth adapter logic visit [auth.ts](file:///C:/Hackathons/EasyAuth/packages/backend/src/adapters/auth.ts).
 To find the Better Auth session adapter visit [better-auth.ts](file:///C:/Hackathons/EasyAuth/packages/backend/src/adapters/better-auth.ts).
+To find the Crossmint adapter export surface visit [crossmint.ts](file:///C:/Hackathons/EasyAuth/packages/backend/src/adapters/crossmint.ts).
 To find wallet adapter logic visit [wallet.ts](file:///C:/Hackathons/EasyAuth/packages/backend/src/adapters/wallet.ts).
 To find the Crossmint wallet adapter visit [crossmint-wallet.ts](file:///C:/Hackathons/EasyAuth/packages/backend/src/adapters/crossmint-wallet.ts).
 To find funding adapter logic visit [funding.ts](file:///C:/Hackathons/EasyAuth/packages/backend/src/adapters/funding.ts).

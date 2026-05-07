@@ -128,14 +128,14 @@ verification (
 
 The following tables are owned by the EasyAuth application.
 
-### wallets
+### easyauth_wallets
 
 Stores one embedded Solana wallet per v1 user.
 
 ```sql
-wallets (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+easyauth_wallets (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
   address TEXT NOT NULL UNIQUE,
   provider TEXT NOT NULL DEFAULT 'crossmint',
   provider_wallet_id TEXT,
@@ -148,14 +148,15 @@ wallets (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
-  CONSTRAINT wallets_one_wallet_per_user UNIQUE (user_id),
-  CONSTRAINT wallets_status_check CHECK (status IN ('creating', 'active', 'failed'))
+  CONSTRAINT easyauth_wallets_one_wallet_per_user UNIQUE (user_id),
+  CONSTRAINT easyauth_wallets_status_check CHECK (status IN ('creating', 'active', 'failed'))
 );
 ```
 
 Design notes:
 
 - `user_id` maps the Better Auth user to exactly one v1 wallet.
+- The SDK uses text IDs such as `wallet_{uuid}` rather than database-generated UUID IDs so storage adapters can round-trip SDK objects without translation.
 - `provider_owner_id` should be the stable Crossmint owner identifier derived from the authenticated user, not from a raw Google subject used as wallet key material.
 - `idempotency_key` protects against duplicate wallet creation retries.
 - `network` should be `devnet` for a hackathon demo unless production credentials and mainnet funding are intentionally configured.
@@ -164,18 +165,19 @@ Design notes:
 To find wallet ownership logic visit [Schema.md](file:///C:/Hackathons/EasyAuth/Schema.md).
 The Crossmint wallet connection can be found in [Schema.md](file:///C:/Hackathons/EasyAuth/Schema.md).
 
-### funding_transactions
+### easyauth_funding_transactions
 
 Tracks each fiat-to-wallet funding attempt.
 
 ```sql
-funding_transactions (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
-  wallet_id UUID NOT NULL REFERENCES wallets(id) ON DELETE CASCADE,
+easyauth_funding_transactions (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  wallet_id TEXT NOT NULL REFERENCES easyauth_wallets(id) ON DELETE CASCADE,
   provider TEXT NOT NULL DEFAULT 'crossmint',
   provider_order_id TEXT UNIQUE,
   provider_quote_id TEXT,
+  checkout_mode TEXT,
   fiat_amount NUMERIC(12, 2) NOT NULL,
   fiat_currency TEXT NOT NULL DEFAULT 'USD',
   crypto_asset TEXT NOT NULL DEFAULT 'USDC',
@@ -183,8 +185,10 @@ funding_transactions (
   network TEXT NOT NULL DEFAULT 'devnet',
   payment_status TEXT NOT NULL DEFAULT 'pending',
   delivery_status TEXT NOT NULL DEFAULT 'not_started',
+  status TEXT NOT NULL DEFAULT 'pending',
   failure_reason TEXT,
   checkout_url TEXT,
+  embedded_checkout JSONB,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
@@ -193,6 +197,9 @@ funding_transactions (
   ),
   CONSTRAINT funding_delivery_status_check CHECK (
     delivery_status IN ('not_started', 'pending', 'completed', 'failed')
+  ),
+  CONSTRAINT funding_status_check CHECK (
+    status IN ('pending', 'requires_action', 'paid', 'funded', 'failed', 'cancelled')
   )
 );
 ```
@@ -201,19 +208,19 @@ Design notes:
 
 - The UI should show pending, paid, delivered, failed, and cancelled states instead of only opening checkout and hoping it worked.
 - `provider_order_id` is nullable at insert time so a failed order-creation attempt can still be recorded if useful.
-- `checkout_url` is optional because embedded checkout can also use an order ID and client secret instead of a direct URL.
+- `checkout_url` is optional because embedded checkout can use an order ID and client secret instead of a direct URL.
+- `embedded_checkout` stores the non-secret checkout metadata needed by the browser-side embedded checkout component.
 - `failure_reason` should store provider-safe failure context, not secrets or full raw payloads.
 
 To find funding status logic visit [Schema.md](file:///C:/Hackathons/EasyAuth/Schema.md).
 The Crossmint on-ramp connection can be found in [Schema.md](file:///C:/Hackathons/EasyAuth/Schema.md).
 
-### webhook_events
+### easyauth_webhook_events
 
 Stores provider webhook events for idempotent processing and debugging.
 
 ```sql
-webhook_events (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+easyauth_webhook_events (
   provider TEXT NOT NULL DEFAULT 'crossmint',
   dedupe_key TEXT NOT NULL,
   external_event_id TEXT,
@@ -223,7 +230,7 @@ webhook_events (
   processed_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
-  CONSTRAINT webhook_events_unique_provider_dedupe_key UNIQUE (provider, dedupe_key)
+  CONSTRAINT easyauth_webhook_events_provider_dedupe_key PRIMARY KEY (provider, dedupe_key)
 );
 ```
 
@@ -240,12 +247,12 @@ The webhook processing connection can be found in [Schema.md](file:///C:/Hackath
 ## Indexes
 
 ```sql
-CREATE INDEX idx_wallets_user_id ON wallets(user_id);
-CREATE INDEX idx_wallets_provider_owner_id ON wallets(provider_owner_id);
-CREATE INDEX idx_funding_transactions_user_id ON funding_transactions(user_id);
-CREATE INDEX idx_funding_transactions_wallet_id ON funding_transactions(wallet_id);
-CREATE INDEX idx_funding_transactions_provider_order_id ON funding_transactions(provider_order_id);
-CREATE INDEX idx_webhook_events_external_order_id ON webhook_events(external_order_id);
+CREATE INDEX idx_easyauth_wallets_user_id ON easyauth_wallets(user_id);
+CREATE INDEX idx_easyauth_wallets_provider_owner_id ON easyauth_wallets(provider_owner_id);
+CREATE INDEX idx_easyauth_funding_transactions_user_id ON easyauth_funding_transactions(user_id);
+CREATE INDEX idx_easyauth_funding_transactions_wallet_id ON easyauth_funding_transactions(wallet_id);
+CREATE INDEX idx_easyauth_funding_transactions_provider_order_id ON easyauth_funding_transactions(provider_order_id);
+CREATE INDEX idx_easyauth_webhook_events_external_order_id ON easyauth_webhook_events(external_order_id);
 ```
 
 Better Auth should generate or define its own auth-table indexes.

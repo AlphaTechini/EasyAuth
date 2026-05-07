@@ -26,4 +26,6 @@ export * from "./services/session-service.js";
 export * from "./services/wallet-service.js";
 export * from "./services/webhook-service.js";
 export * from "./storage/memory-storage.js";
+export * from "./storage/postgres-schema.js";
+export * from "./storage/postgres-storage.js";
 export * from "./types.js";

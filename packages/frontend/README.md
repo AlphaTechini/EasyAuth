@@ -32,8 +32,11 @@ To find default component styling visit [src/styles](file:///C:/Hackathons/EasyA
 The frontend package configuration can be found in [package.json](file:///C:/Hackathons/EasyAuth/packages/frontend/package.json).
 The frontend TypeScript connection can be found in [tsconfig.json](file:///C:/Hackathons/EasyAuth/packages/frontend/tsconfig.json).
 
-## Svelte Exports
+## Public Exports
 
+- `@easyauth/frontend/client`
+- `@easyauth/frontend/api-client`
+- `@easyauth/frontend/theme`
 - `@easyauth/frontend/svelte/provider`
 - `@easyauth/frontend/svelte/login-connect-modal`
 - `@easyauth/frontend/svelte/wallet-card`
