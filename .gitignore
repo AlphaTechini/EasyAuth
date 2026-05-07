@@ -6,5 +6,7 @@ node_modules/
 .svelte-kit/
 build/
 dist/
+web/docs/.vitepress/cache/
+web/docs/.vitepress/dist/
 
 *.log
