@@ -3,10 +3,10 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: 'EasyAuth',
   description: 'The fastest way to onboard users to Solana with embedded wallets and seamless funding',
-  
+
   themeConfig: {
     logo: '/logo.svg',
-    
+
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Getting Started', link: '/getting-started' },
@@ -39,31 +39,13 @@ export default defineConfig({
           ]
         }
       ],
-      '/concepts/': [
-        {
-          text: 'Core Concepts',
-          items: [
-            { text: 'Authentication', link: '/concepts/authentication' },
-            { text: 'Wallets', link: '/concepts/wallets' },
-            { text: 'Funding', link: '/concepts/funding' }
-          ]
-        }
-      ],
       '/api/': [
         {
           text: 'API Reference',
           items: [
-            { text: 'Frontend API', link: '/api/frontend' },
-            { text: 'Backend API', link: '/api/backend' }
-          ]
-        }
-      ],
-      '/examples/': [
-        {
-          text: 'Examples',
-          items: [
-            { text: 'Complete Application', link: '/examples/complete-app' },
-            { text: 'Common Patterns', link: '/examples/common-patterns' }
+            { text: 'Overview', link: '/api/' },
+            { text: 'Frontend SDK', link: '/api/frontend' },
+            { text: 'Backend SDK', link: '/api/backend' }
           ]
         }
       ]

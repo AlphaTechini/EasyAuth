@@ -55,7 +55,7 @@ yarn add @easyauth/backend @easyauth/shared
 
 Create a `.env` file in your backend project:
 
-```env
+```dotenv
 # Better Auth
 BETTER_AUTH_SECRET=your-secret-key-here
 BETTER_AUTH_URL=http://localhost:3000
@@ -241,7 +241,7 @@ await fastify.listen({ port: 3000 })
 
 - [Frontend Integration Guide](/frontend/) - Choose your frontend framework
 - [Backend Integration Guide](/backend/) - Choose your backend language
-- [Core Concepts](/concepts/authentication) - Understand how EasyAuth works
+- [API Reference](/api/) - Understand how EasyAuth works
 - [API Reference](/api/frontend) - Explore the complete API
 
 ## Need Help?

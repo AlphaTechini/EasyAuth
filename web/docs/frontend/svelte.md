@@ -393,4 +393,4 @@ export const load: LayoutServerLoad = async ({ fetch }) => {
 
 - [Backend Integration](/backend/nodejs) - Set up the Node.js backend
 - [API Reference](/api/frontend) - Explore the complete frontend API
-- [Theming Guide](/examples/common-patterns#theming) - Advanced theming examples
+- [API Reference](/api/frontend) - Advanced theming examples

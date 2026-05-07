@@ -174,7 +174,7 @@ const result = await handler(request)
 
 ### Environment Variables
 
-```env
+```dotenv
 # Better Auth
 BETTER_AUTH_SECRET=your-secret-key
 BETTER_AUTH_URL=http://localhost:3000

@@ -479,4 +479,4 @@ export const appConfig: ApplicationConfig = {
 
 - [Backend Integration](/backend/nodejs) - Set up the Node.js backend
 - [API Reference](/api/frontend) - Explore the complete frontend API
-- [Common Patterns](/examples/common-patterns) - Advanced usage examples
+- [Common Patterns](/api/) - Advanced usage examples
