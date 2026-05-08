@@ -18,6 +18,11 @@ export interface RecordWebhookEventResult {
   event: StoredWebhookEvent;
 }
 
+export interface GetFundingHistoryOptions {
+  limit?: number;
+  offset?: number;
+}
+
 export interface StorageAdapter {
   getWalletByUserId(userId: string): Promise<StoredEasyAuthWallet | null>;
   saveWallet(wallet: StoredEasyAuthWallet): Promise<StoredEasyAuthWallet>;
@@ -32,6 +37,10 @@ export interface StorageAdapter {
   getFundingTransactionByProviderOrderId(
     providerOrderId: string
   ): Promise<StoredFundingTransaction | null>;
+  getFundingHistoryByUserId(
+    userId: string,
+    options?: GetFundingHistoryOptions
+  ): Promise<{ transactions: StoredFundingTransaction[]; total: number }>;
   recordWebhookEvent(input: RecordWebhookEventInput): Promise<RecordWebhookEventResult>;
   markWebhookEventProcessed(provider: string, dedupeKey: string): Promise<StoredWebhookEvent>;
 }

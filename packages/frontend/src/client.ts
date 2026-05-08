@@ -73,6 +73,13 @@ export function initEasyAuth(config: EasyAuthConfig = {}): EasyAuthFrontendClien
         return emitError(error);
       }
     },
+    async getWalletBalance() {
+      try {
+        return await api.getWalletBalance();
+      } catch (error) {
+        return emitError(error);
+      }
+    },
     async fundWallet(options) {
       try {
         const { openCheckout = true, ...fundingRequest } = options;
@@ -93,6 +100,13 @@ export function initEasyAuth(config: EasyAuthConfig = {}): EasyAuthFrontendClien
         const fundingOrder = await api.getFundingStatus(fundingId);
         events.emit("funding", fundingOrder);
         return fundingOrder;
+      } catch (error) {
+        return emitError(error);
+      }
+    },
+    async getFundingHistory(options) {
+      try {
+        return await api.getFundingHistory(options);
       } catch (error) {
         return emitError(error);
       }

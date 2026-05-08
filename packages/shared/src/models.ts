@@ -57,6 +57,26 @@ export interface EasyAuthWallet {
   updatedAt?: string;
 }
 
+export interface WalletTokenBalance {
+  token: string;
+  symbol: string;
+  amount: string;
+  decimals: number;
+  uiAmount: number;
+}
+
+export interface WalletBalance {
+  address: string;
+  chain: EasyAuthChain;
+  network: EasyAuthNetwork;
+  /** SOL balance in lamports */
+  lamports: number;
+  /** SOL balance as a human-readable number */
+  sol: number;
+  tokens: WalletTokenBalance[];
+  fetchedAt: string;
+}
+
 export interface FundingRequest {
   amount: number;
   currency?: string;
@@ -94,4 +114,9 @@ export interface EasyAuthFundingOrder {
   failureReason?: string;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface FundingHistoryResult {
+  transactions: EasyAuthFundingOrder[];
+  total: number;
 }

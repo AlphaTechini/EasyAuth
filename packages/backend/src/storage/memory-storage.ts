@@ -77,6 +77,27 @@ export class MemoryStorageAdapter implements StorageAdapter {
     return this.getFundingTransaction(fundingId);
   }
 
+  async getFundingHistoryByUserId(
+    userId: string,
+    options: { limit?: number; offset?: number } = {}
+  ) {
+    const all = [...this.fundingById.values()]
+      .filter((tx) => tx.userId === userId)
+      .sort((a, b) => {
+        // Most recent first
+        const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return bTime - aTime;
+      });
+
+    const total = all.length;
+    const offset = options.offset ?? 0;
+    const limit = options.limit ?? 20;
+    const transactions = all.slice(offset, offset + limit);
+
+    return { transactions, total };
+  }
+
   async recordWebhookEvent(
     input: RecordWebhookEventInput
   ): Promise<RecordWebhookEventResult> {

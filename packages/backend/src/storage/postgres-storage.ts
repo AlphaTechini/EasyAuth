@@ -268,6 +268,33 @@ export class PostgresStorageAdapter implements StorageAdapter {
     return result.rows[0] ? mapFundingRow(result.rows[0]) : null;
   }
 
+  async getFundingHistoryByUserId(
+    userId: string,
+    options: { limit?: number; offset?: number } = {}
+  ) {
+    const limit = options.limit ?? 20;
+    const offset = options.offset ?? 0;
+
+    const [dataResult, countResult] = await Promise.all([
+      this.pool.query<FundingRow>(
+        `SELECT * FROM easyauth_funding_transactions
+         WHERE user_id = $1
+         ORDER BY created_at DESC
+         LIMIT $2 OFFSET $3`,
+        [userId, limit, offset]
+      ),
+      this.pool.query<{ count: string }>(
+        "SELECT COUNT(*)::text AS count FROM easyauth_funding_transactions WHERE user_id = $1",
+        [userId]
+      )
+    ]);
+
+    return {
+      transactions: dataResult.rows.map(mapFundingRow),
+      total: parseInt(countResult.rows[0]?.count ?? "0", 10)
+    };
+  }
+
   async recordWebhookEvent(
     input: RecordWebhookEventInput
   ): Promise<RecordWebhookEventResult> {

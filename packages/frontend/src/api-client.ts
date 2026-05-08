@@ -7,7 +7,9 @@ import {
   type EasyAuthFundingOrder,
   type EasyAuthSession,
   type EasyAuthWallet,
+  type FundingHistoryResult,
   type FundingRequest,
+  type WalletBalance,
   mergeEasyAuthEndpoints
 } from "@easyauth/shared";
 
@@ -27,8 +29,10 @@ export interface EasyAuthApiClient {
   getSession(): Promise<EasyAuthSession | null>;
   getWallet(): Promise<EasyAuthWallet | null>;
   createWallet(): Promise<EasyAuthWallet>;
+  getWalletBalance(): Promise<WalletBalance>;
   createFundingOrder(request: FundingRequest): Promise<EasyAuthFundingOrder>;
   getFundingStatus(fundingId: string): Promise<EasyAuthFundingOrder>;
+  getFundingHistory(options?: { limit?: number; offset?: number }): Promise<FundingHistoryResult>;
   request<TResponse>(method: string, path: string, body?: unknown): Promise<TResponse>;
   resolveUrl(path: string): string;
 }
@@ -71,6 +75,7 @@ export function createEasyAuthApiClient(
     getSession: () => request<EasyAuthSession | null>("GET", endpoints.session),
     getWallet: () => request<EasyAuthWallet | null>("GET", endpoints.wallet),
     createWallet: () => request<EasyAuthWallet>("POST", endpoints.createWallet),
+    getWalletBalance: () => request<WalletBalance>("GET", endpoints.walletBalance),
     createFundingOrder: (fundingRequest) =>
       request<EasyAuthFundingOrder>("POST", endpoints.fundingOrders, fundingRequest),
     getFundingStatus: (fundingId) =>
@@ -78,6 +83,14 @@ export function createEasyAuthApiClient(
         "GET",
         createFundingStatusPath(endpoints.fundingStatus, fundingId)
       ),
+    getFundingHistory: (options = {}) => {
+      const params = new URLSearchParams();
+      if (options.limit !== undefined) params.set("limit", String(options.limit));
+      if (options.offset !== undefined) params.set("offset", String(options.offset));
+      const query = params.toString();
+      const path = query ? `${endpoints.fundingHistory}?${query}` : endpoints.fundingHistory;
+      return request<FundingHistoryResult>("GET", path);
+    },
     request,
     resolveUrl: (path) => resolveUrl(config.baseUrl, path)
   };

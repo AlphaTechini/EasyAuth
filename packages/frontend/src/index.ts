@@ -26,8 +26,11 @@ export type {
   EasyAuthWallet,
   FundingDeliveryStatus,
   FundingCheckoutMode,
+  FundingHistoryResult,
   FundingPaymentStatus,
   FundingRequest,
   FundingStatus,
-  WalletStatus
+  WalletBalance,
+  WalletStatus,
+  WalletTokenBalance
 } from "@easyauth/shared";

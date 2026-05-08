@@ -4,7 +4,9 @@ import type {
   EasyAuthSession,
   EasyAuthWallet,
   FundingCheckoutMode,
-  FundingRequest
+  FundingHistoryResult,
+  FundingRequest,
+  WalletBalance
 } from "@easyauth/shared";
 import type { EasyAuthApiClient, EasyAuthFetch } from "./api-client.js";
 import type { EasyAuthEventHandler, EasyAuthEventName } from "./events.js";
@@ -55,8 +57,10 @@ export interface EasyAuthFrontendClient {
   getSession(): Promise<EasyAuthSession | null>;
   getWallet(): Promise<EasyAuthWallet | null>;
   createWallet(): Promise<EasyAuthWallet>;
+  getWalletBalance(): Promise<WalletBalance>;
   fundWallet(options: FundWalletOptions): Promise<EasyAuthFundingOrder>;
   getFundingStatus(fundingId: string): Promise<EasyAuthFundingOrder>;
+  getFundingHistory(options?: { limit?: number; offset?: number }): Promise<FundingHistoryResult>;
   on<TEventName extends EasyAuthEventName>(
     eventName: TEventName,
     handler: EasyAuthEventHandler<TEventName>

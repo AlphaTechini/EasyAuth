@@ -3,7 +3,9 @@ import type {
   EasyAuthNetwork,
   EasyAuthSession,
   EasyAuthWallet,
-  FundingRequest
+  FundingHistoryResult,
+  FundingRequest,
+  WalletBalance
 } from "@easyauth/shared";
 
 export type EasyAuthRequestHeaders = Record<string, string | string[] | undefined>;
@@ -77,11 +79,15 @@ export interface EasyAuthServices {
   createWallet(
     input?: EasyAuthSessionRequest & CreateWalletServiceInput
   ): Promise<StoredEasyAuthWallet>;
+  getWalletBalance(input?: EasyAuthSessionRequest): Promise<WalletBalance>;
   createFundingOrder(
     input: EasyAuthSessionRequest & CreateFundingServiceInput
   ): Promise<StoredFundingTransaction>;
   getFundingStatus(
     input: EasyAuthSessionRequest & { fundingId: string }
   ): Promise<StoredFundingTransaction>;
+  getFundingHistory(
+    input: EasyAuthSessionRequest & { limit?: number; offset?: number }
+  ): Promise<{ transactions: StoredFundingTransaction[]; total: number }>;
   processWebhook(input: WebhookServiceInput): Promise<WebhookProcessResult>;
 }

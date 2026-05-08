@@ -101,6 +101,20 @@ export function createFundingService(
       }
 
       return transaction;
+    },
+    async getFundingHistory(
+      input: EasyAuthSessionRequest & { limit?: number; offset?: number }
+    ) {
+      const session = await sessionService.getSession(input);
+
+      if (!session) {
+        throw unauthorized();
+      }
+
+      return config.storage.getFundingHistoryByUserId(session.user.id, {
+        limit: input.limit,
+        offset: input.offset
+      });
     }
   };
 }

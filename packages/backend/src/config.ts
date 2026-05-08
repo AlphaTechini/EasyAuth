@@ -2,6 +2,7 @@ import type { AuthAdapter } from "./adapters/auth.js";
 import type { FundingAdapter } from "./adapters/funding.js";
 import type { StorageAdapter } from "./adapters/storage.js";
 import type { WalletAdapter } from "./adapters/wallet.js";
+import { createBalanceService } from "./services/balance-service.js";
 import { createFundingService } from "./services/funding-service.js";
 import { createSessionService } from "./services/session-service.js";
 import { createWalletService } from "./services/wallet-service.js";
@@ -27,6 +28,7 @@ export interface EasyAuthBackend {
 export function createEasyAuthBackend(config: EasyAuthBackendConfig): EasyAuthBackend {
   const sessionService = createSessionService(config);
   const walletService = createWalletService(config, sessionService);
+  const balanceService = createBalanceService(config, sessionService);
   const fundingService = createFundingService(config, sessionService);
   const webhookService = createWebhookService(config);
 
@@ -35,8 +37,10 @@ export function createEasyAuthBackend(config: EasyAuthBackendConfig): EasyAuthBa
       getSession: sessionService.getSession,
       getWallet: walletService.getWallet,
       createWallet: walletService.createWallet,
+      getWalletBalance: balanceService.getWalletBalance,
       createFundingOrder: fundingService.createFundingOrder,
       getFundingStatus: fundingService.getFundingStatus,
+      getFundingHistory: fundingService.getFundingHistory,
       processWebhook: webhookService.processWebhook
     }
   };

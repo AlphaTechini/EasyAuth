@@ -6,7 +6,9 @@ import type {
   EasyAuthHandlerInput,
   EasyAuthHandlerResponse
 } from "../types.js";
+import { handleGetWalletBalance } from "./balance-handler.js";
 import { handleCreateFundingOrder, handleGetFundingStatus } from "./funding-handler.js";
+import { handleGetFundingHistory } from "./history-handler.js";
 import { handleSession } from "./session-handler.js";
 import { handleCreateWallet, handleGetWallet } from "./wallet-handler.js";
 import { handleWebhook } from "./webhook-handler.js";
@@ -17,8 +19,10 @@ export type EasyAuthRouteName =
   | "session"
   | "wallet"
   | "createWallet"
+  | "walletBalance"
   | "fundingOrders"
   | "fundingStatus"
+  | "fundingHistory"
   | "crossmintWebhook";
 
 export interface EasyAuthRouteContract {
@@ -52,6 +56,12 @@ export const EASYAUTH_BACKEND_ROUTES = [
       handleCreateWallet(backend, input as EasyAuthHandlerInput<CreateWalletServiceInput>)
   },
   {
+    name: "walletBalance",
+    method: "GET",
+    path: DEFAULT_EASYAUTH_ENDPOINTS.walletBalance,
+    handle: handleGetWalletBalance
+  },
+  {
     name: "fundingOrders",
     method: "POST",
     path: DEFAULT_EASYAUTH_ENDPOINTS.fundingOrders,
@@ -63,6 +73,12 @@ export const EASYAUTH_BACKEND_ROUTES = [
     method: "GET",
     path: DEFAULT_EASYAUTH_ENDPOINTS.fundingStatus,
     handle: (backend, input) => handleGetFundingStatus(backend, input)
+  },
+  {
+    name: "fundingHistory",
+    method: "GET",
+    path: DEFAULT_EASYAUTH_ENDPOINTS.fundingHistory,
+    handle: handleGetFundingHistory
   },
   {
     name: "crossmintWebhook",
