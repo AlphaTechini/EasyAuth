@@ -67,5 +67,11 @@ export default defineConfig({
 
   head: [
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' }]
-  ]
+  ],
+
+  vite: {
+    server: {
+      host: '127.0.0.1'
+    }
+  }
 })

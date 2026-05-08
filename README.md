@@ -106,6 +106,7 @@ A future `web/` folder may provide simple frontend integration pages after the S
 To find schema decisions visit [Schema.md](file:///C:/Hackathons/EasyAuth/Schema.md).
 To find project structure decisions visit [structure.md](file:///C:/Hackathons/EasyAuth/structure.md).
 To find SDK package source visit [packages](file:///C:/Hackathons/EasyAuth/packages/README.md).
+To find example applications visit [examples](file:///C:/Hackathons/EasyAuth/examples/README.md).
 To find frontend API client logic visit [packages/frontend/src/api-client.ts](file:///C:/Hackathons/EasyAuth/packages/frontend/src/api-client.ts).
 To find public frontend SDK client logic visit [packages/frontend/src/client.ts](file:///C:/Hackathons/EasyAuth/packages/frontend/src/client.ts).
 The auth system can be found in [Schema.md](file:///C:/Hackathons/EasyAuth/Schema.md).
