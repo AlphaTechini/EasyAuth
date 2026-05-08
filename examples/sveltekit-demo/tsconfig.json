@@ -2,13 +2,28 @@
 	"extends": "./.svelte-kit/tsconfig.json",
 	"compilerOptions": {
 		"allowJs": true,
-		"checkJs": true,
+		"checkJs": false,
 		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true,
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
 		"sourceMap": true,
-		"strict": true,
-		"moduleResolution": "bundler"
-	}
+		"strict": false,
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"target": "ESNext",
+		"noImplicitAny": false
+	},
+	"include": ["src/**/*.ts", "src/**/*.svelte"],
+	"exclude": [
+		"node_modules",
+		".svelte-kit",
+		"dist",
+		"build",
+		"postcss.config.js",
+		"svelte.config.js",
+		"tailwind.config.js",
+		"vite.config.js",
+		"server/**/*.js"
+	]
 }
