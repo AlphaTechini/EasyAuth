@@ -2,9 +2,6 @@
 
 Node.js with Fastify is the first-class backend target for EasyAuth. The SDK ships ready-to-use adapters and a Fastify plugin that registers all routes in one call.
 
-::: tip Crossmint is handled for you
-You do not need a Crossmint account. EasyAuth uses its own Crossmint integration under the hood. Wallets and funding work out of the box — you only wire up your database and Google OAuth credentials.
-:::
 
 ## Installation
 
@@ -43,10 +40,6 @@ DATABASE_URL=postgresql://user:password@localhost:5432/myapp
 # Environment
 NODE_ENV=development
 ```
-
-::: info What about Crossmint?
-No Crossmint key is needed in your `.env`. EasyAuth manages the Crossmint integration centrally. If you later want to use your own Crossmint account, you can pass `crossmintApiKey` to the adapter config.
-:::
 
 ## Fastify Setup (Recommended)
 

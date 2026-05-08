@@ -2,9 +2,6 @@
 
 EasyAuth's backend SDK is TypeScript-first, but the server contract is a plain HTTP API. A Go backend implements the same six routes and calls the same upstream services. This guide shows how to do that with the **standard library** and with **Gin**.
 
-::: tip Crossmint is handled for you
-You do not need a Crossmint account. EasyAuth manages the Crossmint integration centrally. Pass your EasyAuth API key and wallets and funding work out of the box.
-:::
 
 ## Route Contract
 

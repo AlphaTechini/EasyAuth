@@ -2,13 +2,6 @@
 
 EasyAuth's backend SDK is TypeScript-first, but the server contract it exposes is a plain HTTP API. A Python backend implements the same six routes and calls the same Crossmint and Better Auth endpoints. This guide shows how to do that with **FastAPI** and **Flask**.
 
-::: tip Crossmint is handled for you
-You do not need a Crossmint account. EasyAuth manages the Crossmint integration centrally. Pass your EasyAuth API key and wallets and funding work out of the box.
-:::
-
-::: info Why no Python SDK package?
-The wallet and funding logic lives server-side and is thin enough to implement directly in any language. A Python package would just be a thin HTTP wrapper around the same Crossmint and Better Auth calls — not worth the maintenance overhead for v1.
-:::
 
 ## Route Contract
 
