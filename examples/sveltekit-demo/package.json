@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
@@ -19,7 +22,7 @@
     "fastify": "5.2.2"
   },
   "devDependencies": {
-    "@sveltejs/adapter-auto": "^3.0.0",
+    "@sveltejs/adapter-vercel": "^5.10.3",
     "@sveltejs/kit": "^2.0.0",
     "@sveltejs/vite-plugin-svelte": "^5.0.0",
     "autoprefixer": "^10.4.20",
