@@ -13,7 +13,8 @@
 		try {
 			const response = await fetch('/api/funding/history');
 			if (response.ok) {
-				transactions = await response.json();
+				const payload = await response.json();
+				transactions = Array.isArray(payload) ? payload : payload.transactions ?? [];
 			} else if (response.status === 401) {
 				goto('/auth');
 			}
@@ -63,7 +64,7 @@
 
 	async function handleLogout() {
 		try {
-			await fetch('/api/auth/signout', { method: 'POST' });
+			await fetch('/api/auth/sign-out', { method: 'POST' });
 			goto('/');
 		} catch (error) {
 			console.error('Logout failed:', error);

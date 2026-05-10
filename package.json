@@ -10,6 +10,13 @@
     "typecheck": "pnpm -r run typecheck",
     "verify": "node scripts/verify.mjs"
   },
+  "pnpm": {
+    "overrides": {
+      "cookie": "0.7.2",
+      "esbuild": "0.25.12",
+      "vite": "6.4.2"
+    }
+  },
   "devDependencies": {
     "tsup": "8.5.1",
     "typescript": "6.0.3",

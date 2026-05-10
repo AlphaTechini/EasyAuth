@@ -25,6 +25,11 @@
 - Svelte UI components should live in `packages/frontend/src/components`.
 - The default UI should stay neutral and easy to override, using black and white defaults instead of strong gradients or brand-heavy colors.
 - Svelte UI components are published through frontend package subpath exports and rely on built `dist` helper modules.
+- The SvelteKit demo loads local configuration through Node's built-in `--env-file=.env` support, so demo Node versions must support that flag.
+- The SvelteKit demo pins the Vercel adapter runtime to `nodejs22.x` so local builds are not tied to the workstation's Node major version.
+- The SvelteKit demo mounts Better Auth and EasyAuth backend routes under `/api` to match the Vite proxy and frontend route calls.
+- The SvelteKit demo should use Better Auth's social sign-in POST route (`/api/auth/sign-in/social`) rather than hardcoded provider-specific sign-in URLs.
+- The SvelteKit demo uses Better Auth's memory adapter only for local demo auth state; durable auth storage is still required for production.
 - Use `pnpm verify` as the staged health check after each meaningful SDK change. It runs build, typecheck, Svelte component compilation, and dependency audit without adding unit or e2e tests.
 - The backend SDK should expose server-only services, provider adapters, storage adapters, and framework-neutral handlers.
 - Backend SDK code should keep provider and persistence behavior behind `AuthAdapter`, `WalletAdapter`, `FundingAdapter`, and `StorageAdapter`.

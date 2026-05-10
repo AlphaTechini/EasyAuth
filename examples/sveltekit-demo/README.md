@@ -31,7 +31,7 @@ This demo consumes the EasyAuth SDK packages:
 
 From the workspace root:
 
-```bash
+```powershell
 pnpm install
 ```
 
@@ -39,9 +39,9 @@ pnpm install
 
 Copy the example environment file:
 
-```bash
+```powershell
 cd examples/sveltekit-demo
-cp .env.example .env
+Copy-Item .env.example .env
 ```
 
 Edit `.env` and add your credentials:
@@ -50,6 +50,8 @@ Edit `.env` and add your credentials:
 # Better Auth Configuration
 BETTER_AUTH_SECRET=your-secret-key-here
 BETTER_AUTH_URL=http://localhost:3000
+CLIENT_ORIGIN=http://localhost:5173
+TRUSTED_ORIGINS=http://localhost:5173
 
 # Google OAuth
 GOOGLE_CLIENT_ID=your-google-client-id
@@ -57,7 +59,9 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 
 # Crossmint Configuration
 CROSSMINT_API_KEY=your-crossmint-api-key
-CROSSMINT_PROJECT_ID=your-crossmint-project-id
+CROSSMINT_CLIENT_API_KEY=your-crossmint-client-api-key
+CROSSMINT_WEBHOOK_SECRET=your-crossmint-webhook-secret
+CROSSMINT_TOKEN_LOCATOR=your-crossmint-token-locator
 
 # Database (PostgreSQL)
 DATABASE_URL=postgresql://user:password@localhost:5432/easyauth_demo
@@ -70,7 +74,7 @@ PORT=3000
 
 From the workspace root:
 
-```bash
+```powershell
 pnpm build
 ```
 
@@ -78,14 +82,14 @@ pnpm build
 
 Start the Fastify backend server:
 
-```bash
+```powershell
 cd examples/sveltekit-demo
 pnpm server
 ```
 
 In a separate terminal, start the SvelteKit dev server:
 
-```bash
+```powershell
 cd examples/sveltekit-demo
 pnpm dev
 ```
@@ -130,7 +134,7 @@ The Fastify backend exposes the following endpoints:
 - `POST /api/wallet` - Create wallet (automatic)
 
 ### Balance
-- `GET /api/balance` - Get wallet balance
+- `GET /api/wallet/balance` - Get wallet balance
 
 ### Funding
 - `POST /api/funding/orders` - Create funding order

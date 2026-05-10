@@ -4,7 +4,7 @@ This guide will help you get the EasyAuth SvelteKit demo running quickly.
 
 ## Prerequisites
 
-- Node.js 18+ installed
+- Node.js 20.6+ installed
 - pnpm installed (`npm install -g pnpm`)
 - Google OAuth credentials (for authentication)
 - Crossmint API credentials (for wallet and funding)
@@ -14,7 +14,7 @@ This guide will help you get the EasyAuth SvelteKit demo running quickly.
 
 From the workspace root:
 
-```bash
+```powershell
 cd C:\Hackathons\EasyAuth
 pnpm install
 ```
@@ -23,7 +23,7 @@ pnpm install
 
 The demo depends on the EasyAuth SDK packages, so build them first:
 
-```bash
+```powershell
 pnpm build
 ```
 
@@ -31,9 +31,9 @@ pnpm build
 
 Navigate to the demo directory and create your `.env` file:
 
-```bash
+```powershell
 cd examples\sveltekit-demo
-copy .env.example .env
+Copy-Item .env.example .env
 ```
 
 Edit `.env` and add your credentials:
@@ -42,6 +42,8 @@ Edit `.env` and add your credentials:
 # Better Auth Configuration
 BETTER_AUTH_SECRET=your-random-secret-key-min-32-chars
 BETTER_AUTH_URL=http://localhost:3000
+CLIENT_ORIGIN=http://localhost:5173
+TRUSTED_ORIGINS=http://localhost:5173
 
 # Google OAuth (Get from Google Cloud Console)
 GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
@@ -49,7 +51,9 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 
 # Crossmint Configuration (Get from Crossmint Console)
 CROSSMINT_API_KEY=your-crossmint-api-key
-CROSSMINT_PROJECT_ID=your-crossmint-project-id
+CROSSMINT_CLIENT_API_KEY=your-crossmint-client-api-key
+CROSSMINT_WEBHOOK_SECRET=your-crossmint-webhook-secret
+CROSSMINT_TOKEN_LOCATOR=your-crossmint-token-locator
 
 # Database (Optional - uses in-memory by default)
 DATABASE_URL=postgresql://user:password@localhost:5432/easyauth_demo
@@ -71,14 +75,14 @@ PORT=3000
 
 1. Go to [Crossmint Console](https://www.crossmint.com/console)
 2. Create a new project
-3. Get your API Key and Project ID from the dashboard
+3. Get your API keys, webhook secret, and token locator from the dashboard
 4. Copy them to `.env`
 
 ## Step 4: Start the Backend Server
 
 In one terminal:
 
-```bash
+```powershell
 cd examples\sveltekit-demo
 pnpm server
 ```
@@ -92,7 +96,7 @@ Server running on http://localhost:3000
 
 In another terminal:
 
-```bash
+```powershell
 cd examples\sveltekit-demo
 pnpm dev
 ```

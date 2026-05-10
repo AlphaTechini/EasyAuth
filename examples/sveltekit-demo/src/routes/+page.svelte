@@ -33,7 +33,7 @@
 			</h1>
 			<p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
 				EasyAuth provides a complete authentication and wallet management solution out of the box.
-				No complex setup, no provider headaches—just install and go.
+				No complex setup, no provider headaches, just install and go.
 			</p>
 			<button
 				onclick={() => goto('/auth')}
@@ -119,7 +119,7 @@
 				</div>
 				<h3 class="text-xl font-semibold text-gray-900 mb-2">Zero Configuration</h3>
 				<p class="text-gray-600">
-					EasyAuth handles Crossmint configuration internally. You only need to provide API keys—we
+					EasyAuth handles Crossmint configuration internally. You only need to provide API keys, we
 					do the rest.
 				</p>
 			</div>

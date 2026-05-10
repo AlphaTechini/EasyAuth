@@ -27,10 +27,15 @@
 			const walletRes = await fetch('/api/wallet');
 			if (walletRes.ok) {
 				wallet = await walletRes.json();
+			} else if (walletRes.status === 404) {
+				const createWalletRes = await fetch('/api/wallet', { method: 'POST' });
+				if (createWalletRes.ok) {
+					wallet = await createWalletRes.json();
+				}
 			}
 
 			// Fetch balance
-			const balanceRes = await fetch('/api/balance');
+			const balanceRes = await fetch('/api/wallet/balance');
 			if (balanceRes.ok) {
 				balance = await balanceRes.json();
 			}
@@ -43,7 +48,7 @@
 
 	async function handleLogout() {
 		try {
-			await fetch('/api/auth/signout', { method: 'POST' });
+			await fetch('/api/auth/sign-out', { method: 'POST' });
 			goto('/');
 		} catch (error) {
 			console.error('Logout failed:', error);
@@ -331,6 +336,7 @@
 				<h2 class="text-2xl font-bold text-gray-900">Fund Your Wallet</h2>
 				<button
 					onclick={closeFundingModal}
+					aria-label="Close funding modal"
 					class="text-gray-400 hover:text-gray-600 transition-colors"
 				>
 					<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

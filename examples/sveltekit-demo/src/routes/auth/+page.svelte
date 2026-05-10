@@ -1,15 +1,117 @@
 <script>
 	import { goto } from '$app/navigation';
 
+	let notification = { message: '', visible: false };
+	let notificationTimeout;
+	let signingIn = false;
+
+	function showNotification(message) {
+		clearTimeout(notificationTimeout);
+		notification = { message, visible: true };
+		notificationTimeout = setTimeout(() => {
+			notification = { message: '', visible: false };
+		}, 3000);
+	}
+
 	async function handleGoogleLogin() {
-		// Redirect to Better Auth Google OAuth endpoint
-		window.location.href = '/api/auth/signin/google';
+		try {
+			signingIn = true;
+			const response = await fetch('/api/auth/sign-in/social', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					provider: 'google',
+					callbackURL: `${window.location.origin}/dashboard`
+				})
+			});
+
+			const payload = await readAuthPayload(response);
+
+			if (!response.ok) {
+				throw new Error(payload?.message || 'Google sign-in failed.');
+			}
+
+			const redirectUrl = payload?.url || payload?.redirectURL;
+
+			if (typeof redirectUrl !== 'string' || redirectUrl.length === 0) {
+				throw new Error('Google sign-in did not return a redirect URL.');
+			}
+
+			window.location.assign(redirectUrl);
+		} catch (error) {
+			showNotification(error instanceof Error ? error.message : 'Google sign-in failed.');
+		} finally {
+			signingIn = false;
+		}
+	}
+
+	function handleComingSoon() {
+		showNotification('Coming soon use continue with Google instead');
+	}
+
+	function handleSupport() {
+		showNotification('Support contact is coming soon.');
+	}
+
+	async function readAuthPayload(response) {
+		const contentType = response.headers.get('content-type') || '';
+
+		if (contentType.includes('application/json')) {
+			return response.json();
+		}
+
+		const text = await response.text();
+		return text ? { message: text } : {};
 	}
 </script>
 
 <svelte:head>
 	<title>Sign In - EasyAuth</title>
 </svelte:head>
+
+<svelte:window
+	onclick={(e) => {
+		if (notification.visible) {
+			const toast = document.querySelector('.notification-toast');
+			if (toast && !toast.contains(e.target)) {
+				notification = { message: '', visible: false };
+			}
+		}
+	}}
+/>
+
+<!-- Notification Toast -->
+{#if notification.visible}
+	<div class="fixed top-4 left-1/2 -translate-x-1/2 z-50 notification-toast">
+		<div
+			class="bg-gray-900 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-3 animate-fade-in"
+		>
+			<svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					stroke-width="2"
+					d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+				/>
+			</svg>
+			<span class="font-medium">{notification.message}</span>
+			<button
+				onclick={() => (notification = { message: '', visible: false })}
+				aria-label="Dismiss notification"
+				class="ml-2 text-gray-400 hover:text-white transition-colors"
+			>
+				<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M6 18L18 6M6 6l12 12"
+					/>
+				</svg>
+			</button>
+		</div>
+	</div>
+{/if}
 
 <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
 	<div class="max-w-md w-full">
@@ -47,7 +149,8 @@
 				<!-- Google Button -->
 				<button
 					onclick={handleGoogleLogin}
-					class="w-full flex items-center justify-center space-x-3 px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-gray-400 hover:bg-gray-50 transition-all"
+					disabled={signingIn}
+					class="w-full flex items-center justify-center space-x-3 px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-gray-400 hover:bg-gray-50 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-500 transition-all"
 				>
 					<svg class="w-5 h-5" viewBox="0 0 24 24">
 						<path
@@ -67,33 +170,33 @@
 							d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
 						/>
 					</svg>
-					<span class="font-medium text-gray-700">Continue with Google</span>
+					<span class={signingIn ? 'font-medium text-gray-500' : 'font-medium text-gray-700'}>{signingIn ? 'Connecting...' : 'Continue with Google'}</span>
 				</button>
 
-				<!-- GitHub Button (Placeholder) -->
+				<!-- Facebook Button -->
 				<button
-					disabled
-					class="w-full flex items-center justify-center space-x-3 px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50 cursor-not-allowed opacity-60"
+					onclick={handleComingSoon}
+					class="w-full flex items-center justify-center space-x-3 px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-gray-400 hover:bg-gray-50 transition-all cursor-pointer"
+				>
+					<svg class="w-5 h-5" fill="#1877F2" viewBox="0 0 24 24">
+						<path
+							d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.234 2.686.234v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
+						/>
+					</svg>
+					<span class="font-medium text-gray-700">Continue with Facebook</span>
+				</button>
+
+				<!-- X (Twitter) Button -->
+				<button
+					onclick={handleComingSoon}
+					class="w-full flex items-center justify-center space-x-3 px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-gray-400 hover:bg-gray-50 transition-all cursor-pointer"
 				>
 					<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
 						<path
-							d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+							d="M18.244 2.25h3.308l-7.227 8.26 8.28 10.74h-6.49l-5.13-6.62-5.14 6.62H1.59l7.73-8.93L1.57 2.25h6.63l4.63 6.09 5.24-6.09zm-1.04 16.17h1.83L6.28 3.75H4.28l12.92 14.67z"
 						/>
 					</svg>
-					<span class="font-medium text-gray-500">Continue with GitHub (Coming Soon)</span>
-				</button>
-
-				<!-- Twitter Button (Placeholder) -->
-				<button
-					disabled
-					class="w-full flex items-center justify-center space-x-3 px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50 cursor-not-allowed opacity-60"
-				>
-					<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-						<path
-							d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"
-						/>
-					</svg>
-					<span class="font-medium text-gray-500">Continue with Twitter (Coming Soon)</span>
+					<span class="font-medium text-gray-700">Continue with X</span>
 				</button>
 			</div>
 
@@ -119,8 +222,28 @@
 		<!-- Additional Info -->
 		<div class="mt-6 text-center text-sm text-gray-600">
 			<p>
-				Need help? <a href="#" class="text-black font-medium hover:underline">Contact Support</a>
+				Need help?
+				<button type="button" onclick={handleSupport} class="text-black font-medium hover:underline">
+					Contact Support
+				</button>
 			</p>
 		</div>
 	</div>
 </div>
+
+<style>
+	@keyframes fade-in {
+		from {
+			opacity: 0;
+			transform: translateY(-8px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	.animate-fade-in {
+		animation: fade-in 200ms ease-out;
+	}
+</style>
