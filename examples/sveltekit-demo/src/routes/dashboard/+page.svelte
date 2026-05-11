@@ -1,6 +1,11 @@
 <script>
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
+	import { demoWallet, demoBalance, demoSession, clearDemoSession, addDemoTransaction, updateDemoBalance } from '$lib/demo-data.js';
+	import { success, error } from '$lib/toast.js';
+	import ToastContainer from '$lib/components/ToastContainer.svelte';
+	import { formatCardNumber, formatExpiryDate, formatCVC } from '$lib/card-utils.js';
+	import { fetchSolanaPrice, convertUsdToSol } from '$lib/price-api.js';
 
 	let session = $state(null);
 	let wallet = $state(null);
@@ -8,95 +13,170 @@
 	let loading = $state(true);
 	let showFundingModal = $state(false);
 	let fundingAmount = $state('10');
+	let cardNumber = $state('');
+	let cardExpiry = $state('');
+	let cardCvc = $state('');
+	let cardName = $state('');
+	let processingPayment = $state(false);
+	let solPrice = $state(150); // Fallback price
+	let loadingPrice = $state(false);
 
-	onMount(async () => {
-		await loadData();
-	});
-
-	async function loadData() {
-		try {
-			// Fetch session
-			const sessionRes = await fetch('/api/session');
-			if (!sessionRes.ok) {
-				goto('/auth');
-				return;
-			}
-			session = await sessionRes.json();
-			if (!session) {
-				goto('/auth');
-				return;
-			}
-
-			// Fetch wallet
-			const walletRes = await fetch('/api/wallet');
-			if (walletRes.ok) {
-				wallet = await walletRes.json();
-			}
-
-			if ((walletRes.ok && !wallet) || walletRes.status === 404) {
-				const createWalletRes = await fetch('/api/wallet', { method: 'POST' });
-				if (createWalletRes.ok) {
-					wallet = await createWalletRes.json();
-				}
-			}
-
-			// Fetch balance
-			const balanceRes = await fetch('/api/wallet/balance');
-			if (balanceRes.ok) {
-				balance = await balanceRes.json();
-			}
-		} catch (error) {
-			console.error('Failed to load data:', error);
-		} finally {
-			loading = false;
-		}
+	// Handle card number input with auto-formatting
+	function handleCardNumberInput(e) {
+		const formatted = formatCardNumber(e.target.value);
+		cardNumber = formatted;
 	}
 
-	async function handleLogout() {
-		try {
-			await fetch('/api/auth/sign-out', { method: 'POST' });
-			goto('/');
-		} catch (error) {
-			console.error('Logout failed:', error);
+	// Handle expiry date input with auto-formatting
+	function handleExpiryInput(e) {
+		const formatted = formatExpiryDate(e.target.value);
+		cardExpiry = formatted;
+	}
+
+	// Handle CVC input with auto-formatting
+	function handleCvcInput(e) {
+		const formatted = formatCVC(e.target.value);
+		cardCvc = formatted;
+	}
+
+	// Fetch real-time SOL price
+	async function updateSolPrice() {
+		loadingPrice = true;
+		const price = await fetchSolanaPrice();
+		if (price) {
+			solPrice = price;
 		}
+		loadingPrice = false;
+	}
+
+	onMount(() => {
+		// Use demo session data
+		const unsubscribeSession = demoSession.subscribe((s) => {
+			session = s;
+		});
+
+		// If no session, redirect to auth
+		if (!session) {
+			goto('/auth');
+			return;
+		}
+
+		// Use demo wallet
+		wallet = demoWallet;
+
+		// Subscribe to balance updates
+		const unsubscribeBalance = demoBalance.subscribe((b) => {
+			balance = b;
+		});
+
+		loading = false;
+
+		// Fetch real-time SOL price
+		updateSolPrice();
+
+		// Update price every 60 seconds
+		const priceInterval = setInterval(updateSolPrice, 60000);
+
+		// Cleanup subscriptions
+		return () => {
+			unsubscribeSession();
+			unsubscribeBalance();
+			clearInterval(priceInterval);
+		};
+	});
+
+	function handleLogout() {
+		clearDemoSession();
+		goto('/');
 	}
 
 	function openFundingModal() {
 		showFundingModal = true;
+		// Refresh price when opening modal
+		updateSolPrice();
 	}
 
 	function closeFundingModal() {
 		showFundingModal = false;
+		// Reset form fields
+		fundingAmount = '10';
+		cardNumber = '';
+		cardExpiry = '';
+		cardCvc = '';
+		cardName = '';
+		processingPayment = false;
 	}
 
-	async function handleFundWallet() {
-		try {
-			const response = await fetch('/api/funding/orders', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					amount: parseFloat(fundingAmount),
-					currency: 'USD'
-				})
+	function handleFundWallet() {
+		// Validate card details
+		if (!cardNumber || !cardExpiry || !cardCvc || !cardName) {
+			error('Please fill in all card details');
+			return;
+		}
+
+		// Basic validation
+		const cardDigits = cardNumber.replace(/\D/g, '');
+		if (cardDigits.length !== 16) {
+			error('Please enter a valid 16-digit card number');
+			return;
+		}
+
+		const expiryDigits = cardExpiry.replace(/\D/g, '');
+		if (expiryDigits.length !== 4) {
+			error('Please enter a valid expiry date (MM/YY)');
+			return;
+		}
+
+		const cvcDigits = cardCvc.replace(/\D/g, '');
+		if (cvcDigits.length < 3) {
+			error('Please enter a valid CVC');
+			return;
+		}
+
+		// Simulate payment processing
+		processingPayment = true;
+
+		// Simulate a short delay for payment processing
+		setTimeout(() => {
+			// Create a demo funding transaction
+			const amount = parseFloat(fundingAmount);
+			const solAmount = amount / solPrice; // Use real-time price
+
+			// Update the demo balance using the store
+			updateDemoBalance({
+				sol: balance.sol + solAmount,
+				lamports: balance.lamports + solAmount * 1000000000,
+				fetchedAt: new Date().toISOString()
 			});
 
-			if (response.ok) {
-				const order = await response.json();
-				alert('Funding order created! In production, this would open the Crossmint checkout.');
-				closeFundingModal();
-				await loadData();
-			} else {
-				alert('Failed to create funding order');
-			}
-		} catch (error) {
-			console.error('Funding failed:', error);
-			alert('An error occurred while creating the funding order');
-		}
+			// Create a transaction record
+			const transaction = {
+				id: 'demo-tx-' + Date.now(),
+				provider: 'crossmint',
+				status: 'funded',
+				paymentStatus: 'paid',
+				deliveryStatus: 'completed',
+				fiatAmount: amount,
+				fiatCurrency: 'USD',
+				cryptoAmount: solAmount.toFixed(4),
+				cryptoAsset: 'SOL',
+				chain: 'solana',
+				network: 'devnet',
+				walletId: 'demo-wallet-456',
+				createdAt: new Date().toISOString(),
+				updatedAt: new Date().toISOString()
+			};
+
+			// Add to transaction history
+			addDemoTransaction(transaction);
+			success(`Funding successful! Your wallet has been credited with ${solAmount.toFixed(4)} SOL`);
+			closeFundingModal();
+		}, 1500);
 	}
 
 	function copyToClipboard(text) {
 		navigator.clipboard.writeText(text);
-		alert('Copied to clipboard!');
+		success('Copied to clipboard!');
 	}
 
 	function readSolBalance(balance) {
@@ -107,6 +187,8 @@
 <svelte:head>
 	<title>Dashboard - EasyAuth</title>
 </svelte:head>
+
+<ToastContainer />
 
 <div class="min-h-screen bg-gray-50">
 	<!-- Header -->
@@ -200,7 +282,7 @@
 									<p class="text-sm text-gray-600 mb-1">Wallet Address</p>
 									<div class="flex items-center space-x-2">
 										<code class="text-sm font-mono text-gray-900 bg-gray-50 px-3 py-2 rounded flex-1 truncate">
-											{wallet.address}
+											{wallet.address.substring(0, 4)}{'*'.repeat(36)}{wallet.address.substring(40)}
 										</code>
 										<button
 											onclick={() => copyToClipboard(wallet.address)}
@@ -252,7 +334,7 @@
 										{readSolBalance(balance).toFixed(4)} SOL
 									</p>
 									<p class="text-sm text-gray-600 mt-1">
-										≈ ${(readSolBalance(balance) * 150).toFixed(2)} USD
+										≈ ${(readSolBalance(balance) * solPrice).toFixed(2)} USD
 									</p>
 								</div>
 								<button
@@ -348,6 +430,7 @@
 					onclick={closeFundingModal}
 					aria-label="Close funding modal"
 					class="text-gray-400 hover:text-gray-600 transition-colors"
+					disabled={processingPayment}
 				>
 					<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path
@@ -361,6 +444,7 @@
 			</div>
 
 			<div class="space-y-4">
+				<!-- Amount Section -->
 				<div>
 					<label for="amount" class="block text-sm font-medium text-gray-700 mb-2">
 						Amount (USD)
@@ -371,7 +455,8 @@
 						bind:value={fundingAmount}
 						min="1"
 						step="1"
-						class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+						disabled={processingPayment}
+						class="w-full px-4 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
 						placeholder="10"
 					/>
 				</div>
@@ -379,23 +464,97 @@
 				<div class="bg-gray-50 p-4 rounded-lg">
 					<p class="text-sm text-gray-600 mb-2">You will receive approximately:</p>
 					<p class="text-2xl font-bold text-gray-900">
-						{(parseFloat(fundingAmount) / 150).toFixed(4)} SOL
+						{(parseFloat(fundingAmount) / solPrice).toFixed(4)} SOL
 					</p>
-					<p class="text-xs text-gray-500 mt-1">Exchange rate: 1 SOL ≈ $150 USD</p>
+					<p class="text-xs text-gray-500 mt-1">Exchange rate: 1 SOL ≈ ${solPrice.toFixed(2)} USD</p>
 				</div>
 
-				<div class="flex space-x-3">
+				<!-- Card Details Section -->
+				<div class="border-t pt-4">
+					<h3 class="text-lg font-semibold text-gray-900 mb-4">Payment Details</h3>
+					
+					<!-- Card Number -->
+					<div class="mb-4">
+						<label for="cardNumber" class="block text-sm font-medium text-gray-700 mb-2">
+							Card Number
+						</label>
+						<input
+							id="cardNumber"
+							type="text"
+							value={cardNumber}
+							oninput={handleCardNumberInput}
+							disabled={processingPayment}
+							maxlength="19"
+							placeholder="1234 5678 9012 3456"
+							class="w-full px-4 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed font-mono"
+						/>
+					</div>
+
+					<!-- Card Name -->
+					<div class="mb-4">
+						<label for="cardName" class="block text-sm font-medium text-gray-700 mb-2">
+							Cardholder Name
+						</label>
+						<input
+							id="cardName"
+							type="text"
+							bind:value={cardName}
+							disabled={processingPayment}
+							placeholder="John Doe"
+							class="w-full px-4 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed uppercase"
+						/>
+					</div>
+
+					<!-- Expiry and CVC -->
+					<div class="grid grid-cols-2 gap-4">
+						<div>
+							<label for="cardExpiry" class="block text-sm font-medium text-gray-700 mb-2">
+								Expiry Date
+							</label>
+							<input
+								id="cardExpiry"
+								type="text"
+								value={cardExpiry}
+								oninput={handleExpiryInput}
+								disabled={processingPayment}
+								maxlength="5"
+								placeholder="MM/YY"
+								class="w-full px-4 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed font-mono"
+							/>
+						</div>
+						<div>
+							<label for="cardCvc" class="block text-sm font-medium text-gray-700 mb-2">
+								CVC
+							</label>
+							<input
+								id="cardCvc"
+								type="text"
+								value={cardCvc}
+								oninput={handleCvcInput}
+								disabled={processingPayment}
+								maxlength="4"
+								placeholder="123"
+								class="w-full px-4 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed font-mono"
+							/>
+						</div>
+					</div>
+				</div>
+
+				<!-- Action Buttons -->
+				<div class="flex space-x-3 pt-4">
 					<button
 						onclick={closeFundingModal}
-						class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+						disabled={processingPayment}
+						class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
 					>
 						Cancel
 					</button>
 					<button
 						onclick={handleFundWallet}
-						class="flex-1 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium"
+						disabled={processingPayment}
+						class="flex-1 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
 					>
-						Continue
+						{processingPayment ? 'Processing...' : 'Pay Now'}
 					</button>
 				</div>
 

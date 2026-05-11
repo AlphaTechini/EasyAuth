@@ -1,29 +1,37 @@
 <script>
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
+	import { demoSession, demoTransactions, clearDemoSession } from '$lib/demo-data.js';
 
 	let transactions = $state([]);
 	let loading = $state(true);
+	let session = $state(null);
 
-	onMount(async () => {
-		await loadHistory();
-	});
+	onMount(() => {
+		// Use demo session data
+		const unsubscribeSession = demoSession.subscribe((s) => {
+			session = s;
+		});
 
-	async function loadHistory() {
-		try {
-			const response = await fetch('/api/funding/history');
-			if (response.ok) {
-				const payload = await response.json();
-				transactions = Array.isArray(payload) ? payload : payload.transactions ?? [];
-			} else if (response.status === 401) {
-				goto('/auth');
-			}
-		} catch (error) {
-			console.error('Failed to load history:', error);
-		} finally {
-			loading = false;
+		// If no session, redirect to auth
+		if (!session) {
+			goto('/auth');
+			return;
 		}
-	}
+
+		// Subscribe to demo transactions
+		const unsubscribeTransactions = demoTransactions.subscribe((txs) => {
+			transactions = txs;
+		});
+
+		loading = false;
+
+		// Cleanup subscriptions
+		return () => {
+			unsubscribeSession();
+			unsubscribeTransactions();
+		};
+	});
 
 	function formatDate(dateString) {
 		const date = new Date(dateString);
@@ -70,13 +78,9 @@
 		return transaction.fiatCurrency ?? transaction.currency ?? 'USD';
 	}
 
-	async function handleLogout() {
-		try {
-			await fetch('/api/auth/sign-out', { method: 'POST' });
-			goto('/');
-		} catch (error) {
-			console.error('Logout failed:', error);
-		}
+	function handleLogout() {
+		clearDemoSession();
+		goto('/');
 	}
 </script>
 
