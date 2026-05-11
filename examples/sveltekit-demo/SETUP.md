@@ -8,7 +8,7 @@ This guide will help you get the EasyAuth SvelteKit demo running quickly.
 - pnpm installed (`npm install -g pnpm`)
 - Google OAuth credentials (for authentication)
 - Crossmint API credentials (for wallet and funding)
-- PostgreSQL database (optional, uses in-memory storage by default)
+- PostgreSQL database (optional locally, recommended for deployment)
 
 ## Step 1: Install Dependencies
 
@@ -41,8 +41,7 @@ Edit `.env` and add your credentials:
 ```env
 # Better Auth Configuration
 BETTER_AUTH_SECRET=your-random-secret-key-min-32-chars
-BETTER_AUTH_URL=http://localhost:3000
-CLIENT_ORIGIN=http://localhost:5173
+BETTER_AUTH_URL=http://localhost:5173
 TRUSTED_ORIGINS=http://localhost:5173
 
 # Google OAuth (Get from Google Cloud Console)
@@ -55,10 +54,11 @@ CROSSMINT_CLIENT_API_KEY=your-crossmint-client-api-key
 CROSSMINT_WEBHOOK_SECRET=your-crossmint-webhook-secret
 CROSSMINT_TOKEN_LOCATOR=your-crossmint-token-locator
 
-# Database (Optional - uses in-memory by default)
-DATABASE_URL=postgresql://user:password@localhost:5432/easyauth_demo
+# Database (optional locally, recommended for deployment)
+DATABASE_URL=
+EASYAUTH_RUN_MIGRATIONS=false
 
-# Server Configuration
+# Optional standalone Fastify server configuration
 PORT=3000
 ```
 
@@ -68,7 +68,7 @@ PORT=3000
 2. Create a new project or select existing
 3. Enable Google+ API
 4. Go to Credentials → Create Credentials → OAuth 2.0 Client ID
-5. Set authorized redirect URI: `http://localhost:3000/api/auth/callback/google`
+5. Set authorized redirect URI: `http://localhost:5173/api/auth/callback/google`
 6. Copy Client ID and Client Secret to `.env`
 
 ### Getting Crossmint Credentials
@@ -78,23 +78,7 @@ PORT=3000
 3. Get your API keys, webhook secret, and token locator from the dashboard
 4. Copy them to `.env`
 
-## Step 4: Start the Backend Server
-
-In one terminal:
-
-```powershell
-cd examples\sveltekit-demo
-pnpm server
-```
-
-You should see:
-```
-Server running on http://localhost:3000
-```
-
-## Step 5: Start the Frontend Dev Server
-
-In another terminal:
+## Step 4: Start the Demo
 
 ```powershell
 cd examples\sveltekit-demo
@@ -103,11 +87,12 @@ pnpm dev
 
 You should see:
 ```
-VITE ready in XXXms
 Local: http://localhost:5173/
 ```
 
-## Step 6: Test the Application
+The SvelteKit dev server hosts both the UI and `/api/*` backend routes. The optional `pnpm server` command starts the standalone Fastify backend for SDK integration experiments.
+
+## Step 5: Test the Application
 
 1. Open http://localhost:5173 in your browser
 2. Click "Sign In" on the landing page
@@ -121,9 +106,9 @@ Local: http://localhost:5173/
 ## Troubleshooting
 
 ### "Session not found" error
-- Make sure the backend server is running on port 3000
+- Make sure the SvelteKit dev server is running on port 5173
 - Check that cookies are enabled in your browser
-- Verify `BETTER_AUTH_URL` matches your backend URL
+- Verify `BETTER_AUTH_URL` matches your app URL
 
 ### Wallet creation fails
 - Check Crossmint API credentials are correct
@@ -138,7 +123,7 @@ Local: http://localhost:5173/
 ### Port already in use
 - Change `PORT` in `.env` to a different port
 - Update `BETTER_AUTH_URL` to match the new port
-- Restart both servers
+- Restart the dev server
 
 ## Next Steps
 
@@ -153,7 +138,7 @@ Before deploying to production:
 
 1. Generate a secure `BETTER_AUTH_SECRET` (min 32 characters)
 2. Use production OAuth credentials
-3. Switch to Postgres storage adapter
+3. Configure Postgres storage and apply Better Auth plus EasyAuth database schemas
 4. Enable HTTPS for all endpoints
 5. Configure CORS policies
 6. Add rate limiting

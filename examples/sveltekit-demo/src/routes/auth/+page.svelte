@@ -28,7 +28,7 @@
 			const payload = await readAuthPayload(response);
 
 			if (!response.ok) {
-				throw new Error(payload?.message || 'Google sign-in failed.');
+				throw new Error(payload?.message || 'Google sign-in is not available yet. Check the demo API configuration.');
 			}
 
 			const redirectUrl = payload?.url || payload?.redirectURL;
@@ -61,6 +61,10 @@
 		}
 
 		const text = await response.text();
+		if (contentType.includes('text/html') || text.trimStart().startsWith('<!doctype')) {
+			return {};
+		}
+
 		return text ? { message: text } : {};
 	}
 </script>

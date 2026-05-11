@@ -21,9 +21,9 @@ This demo consumes the EasyAuth SDK packages:
 ### Tech Stack
 
 - **Frontend**: SvelteKit 2 + Tailwind CSS
-- **Backend**: Fastify + Better Auth
+- **Backend**: SvelteKit API routes + Better Auth + EasyAuth backend SDK handlers
 - **Wallet Provider**: Crossmint (Solana)
-- **Storage**: In-memory (for demo purposes)
+- **Storage**: Postgres when `DATABASE_URL` is configured; in-memory fallback for local demos
 
 ## Setup
 
@@ -49,8 +49,7 @@ Edit `.env` and add your credentials:
 ```env
 # Better Auth Configuration
 BETTER_AUTH_SECRET=your-secret-key-here
-BETTER_AUTH_URL=http://localhost:3000
-CLIENT_ORIGIN=http://localhost:5173
+BETTER_AUTH_URL=http://localhost:5173
 TRUSTED_ORIGINS=http://localhost:5173
 
 # Google OAuth
@@ -63,10 +62,11 @@ CROSSMINT_CLIENT_API_KEY=your-crossmint-client-api-key
 CROSSMINT_WEBHOOK_SECRET=your-crossmint-webhook-secret
 CROSSMINT_TOKEN_LOCATOR=your-crossmint-token-locator
 
-# Database (PostgreSQL)
-DATABASE_URL=postgresql://user:password@localhost:5432/easyauth_demo
+# Database (optional locally, recommended for deployment)
+DATABASE_URL=
+EASYAUTH_RUN_MIGRATIONS=false
 
-# Server Configuration
+# Optional standalone Fastify server configuration
 PORT=3000
 ```
 
@@ -80,23 +80,15 @@ pnpm build
 
 ### 4. Run the Demo
 
-Start the Fastify backend server:
-
-```powershell
-cd examples/sveltekit-demo
-pnpm server
-```
-
-In a separate terminal, start the SvelteKit dev server:
-
 ```powershell
 cd examples/sveltekit-demo
 pnpm dev
 ```
 
 The application will be available at:
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:3000
+- Demo app and API: http://localhost:5173
+
+The optional `pnpm server` command starts the standalone Fastify backend for SDK integration experiments, but the deployable demo app uses SvelteKit `/api/*` routes.
 
 ## User Flow
 
@@ -121,7 +113,7 @@ The application will be available at:
 
 ## API Endpoints
 
-The Fastify backend exposes the following endpoints:
+The SvelteKit backend exposes the following endpoints:
 
 ### Authentication
 - `GET/POST /api/auth/*` - Better Auth endpoints
@@ -144,20 +136,11 @@ The Fastify backend exposes the following endpoints:
 ### Webhooks
 - `POST /api/webhooks/crossmint` - Crossmint webhook handler
 
-### Health
-- `GET /health` - Server health check
-
 ## Storage
 
-This demo uses in-memory storage for simplicity. For production use, switch to the Postgres storage adapter:
+This demo uses in-memory storage only when `DATABASE_URL` is absent. For Vercel or a recorded demo that must survive cold starts, set `DATABASE_URL` to a Postgres connection string. Supabase pooler URLs should include `sslmode=require`; the demo adds it when the URL does not already specify an SSL mode.
 
-```javascript
-import { createPostgresStorage } from '@easyauth/backend/storage/postgres';
-
-const storage = createPostgresStorage({
-	connectionString: process.env.DATABASE_URL
-});
-```
+Set `EASYAUTH_RUN_MIGRATIONS=true` only when you intentionally want the demo to apply EasyAuth SDK tables at runtime. Better Auth tables should still be generated and applied through Better Auth's migration workflow.
 
 ## Customization
 

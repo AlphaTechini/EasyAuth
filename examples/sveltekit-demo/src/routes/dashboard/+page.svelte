@@ -22,12 +22,18 @@
 				return;
 			}
 			session = await sessionRes.json();
+			if (!session) {
+				goto('/auth');
+				return;
+			}
 
 			// Fetch wallet
 			const walletRes = await fetch('/api/wallet');
 			if (walletRes.ok) {
 				wallet = await walletRes.json();
-			} else if (walletRes.status === 404) {
+			}
+
+			if ((walletRes.ok && !wallet) || walletRes.status === 404) {
 				const createWalletRes = await fetch('/api/wallet', { method: 'POST' });
 				if (createWalletRes.ok) {
 					wallet = await createWalletRes.json();
@@ -91,6 +97,10 @@
 	function copyToClipboard(text) {
 		navigator.clipboard.writeText(text);
 		alert('Copied to clipboard!');
+	}
+
+	function readSolBalance(balance) {
+		return Number(balance?.sol ?? 0);
 	}
 </script>
 
@@ -239,10 +249,10 @@
 							<div class="space-y-3">
 								<div>
 									<p class="text-3xl font-bold text-gray-900">
-										{balance.balance || '0'} SOL
+										{readSolBalance(balance).toFixed(4)} SOL
 									</p>
 									<p class="text-sm text-gray-600 mt-1">
-										≈ ${((parseFloat(balance.balance) || 0) * 150).toFixed(2)} USD
+										≈ ${(readSolBalance(balance) * 150).toFixed(2)} USD
 									</p>
 								</div>
 								<button

@@ -11,7 +11,6 @@ import {
 } from '@easyauth/backend/integrations/fastify';
 
 const PORT = readPortEnv('PORT');
-const CLIENT_ORIGIN = readRequiredEnv('CLIENT_ORIGIN');
 const authDb = {
 	user: [],
 	session: [],
@@ -33,7 +32,7 @@ const auth = betterAuth({
 	},
 	secret: readRequiredEnv('BETTER_AUTH_SECRET'),
 	baseURL: readRequiredEnv('BETTER_AUTH_URL'),
-	trustedOrigins: readCsvEnv('TRUSTED_ORIGINS', CLIENT_ORIGIN)
+	trustedOrigins: readCsvEnv('TRUSTED_ORIGINS', readRequiredEnv('BETTER_AUTH_URL'))
 });
 
 const authAdapter = createBetterAuthAdapter({ auth });

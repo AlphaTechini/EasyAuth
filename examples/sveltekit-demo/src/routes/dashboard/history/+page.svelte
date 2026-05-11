@@ -62,6 +62,14 @@
 		return status.charAt(0).toUpperCase() + status.slice(1);
 	}
 
+	function getFiatAmount(transaction) {
+		return transaction.fiatAmount ?? transaction.amount ?? '0';
+	}
+
+	function getFiatCurrency(transaction) {
+		return transaction.fiatCurrency ?? transaction.currency ?? 'USD';
+	}
+
 	async function handleLogout() {
 		try {
 			await fetch('/api/auth/sign-out', { method: 'POST' });
@@ -200,7 +208,7 @@
 											</td>
 											<td class="px-6 py-4 whitespace-nowrap">
 												<div class="text-sm font-medium text-gray-900">
-													${transaction.amount} {transaction.currency || 'USD'}
+													${getFiatAmount(transaction)} {getFiatCurrency(transaction)}
 												</div>
 												{#if transaction.cryptoAmount}
 													<div class="text-xs text-gray-500">
