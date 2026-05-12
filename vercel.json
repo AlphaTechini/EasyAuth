@@ -1,0 +1,4 @@
+{
+  "buildCommand": "pnpm -r --filter @easyauth/shared --filter @easyauth/backend --filter @easyauth/frontend run build && cd examples/sveltekit-demo && pnpm build",
+  "installCommand": "pnpm install"
+}
