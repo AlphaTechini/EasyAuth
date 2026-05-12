@@ -8,5 +8,6 @@ build/
 dist/
 web/docs/.vitepress/cache/
 web/docs/.vitepress/dist/
+.vercel/
 
 *.log
